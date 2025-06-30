@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>JD Assistant</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        #command {
+            width: 80%;
+            padding: 10px;
+            font-size: 18px;
+        }
+        #response {
+            margin-top: 20px;
+            font-size: 18px;
+            white-space: pre-wrap;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+    </style>
+    <script>
+        function speakFromWeb(text) {
+            if (typeof Android !== "undefined" && Android.speakResponse) {
+                Android.speakResponse(text);
+            } else {
+                console.log("Android interface not available. Text was: " + text);
+            }
+        }
+
+        function startVoiceInput() {
+            if (typeof Android !== "undefined" && Android.startVoice) {
+                Android.startVoice();
+            } else {
+                alert("Voice input not available");
+            }
+        }
+
+        function sendCommand() {
+            const cmd = document.getElementById("command").value;
+
+            fetch("/process", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ command: cmd })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("response").textContent = data.response;
+                speakFromWeb(data.response);
+
+                // Handle YouTube if action returned
+                if (data.actions && data.actions.youtube_song) {
+                    if (typeof Android !== "undefined" && Android.openYouTube) {
+                        Android.openYouTube(data.actions.youtube_song);
+                    }
+                }
+            })
+            .catch(error => {
+                document.getElementById("response").textContent = "Error: " + error;
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Welcome to JD Assistant</h1>
+    <input type="text" id="command" placeholder="Type your command..." onkeydown="if(event.key==='Enter') sendCommand()" />
+    <br>
+    <button onclick="sendCommand()">Send</button>
+    <button onclick="startVoiceInput()">🎤 Speak</button>
+
+    <div id="response"></div>
+</body>
+</html>
+
+
