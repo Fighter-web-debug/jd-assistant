@@ -141,114 +141,101 @@
   </style>
 </head>
 <body data-theme="dark">
-<div class="theme-toggle" onclick="toggleTheme()">Toggle Theme</div>
-<h1>JD Assistant</h1>
-<div class="chat-container" id="chat-container"></div>
+  <div class="theme-toggle" onclick="toggleTheme()">Toggle Theme</div>
+  <h1>JD Assistant</h1>
+  <div class="chat-container" id="chat-container">
+    {% for entry in chat_history %}
+      <div class="message user">{{ entry.command }}</div>
+      <div class="message bot">{{ entry.response }}</div>
+    {% endfor %}
+  </div>
 
-<div class="input-container">
-    <label for="command"></label><input type="text" id="command" placeholder="Type your command..." onkeydown="if(event.key==='Enter') sendCommand()" />
-  <button onclick="sendCommand()">Send</button>
-  <button class="mic-button" onclick="startVoiceInput()">🎤</button>
-  <div class="loader" id="loader"></div>
-</div>
+  <div class="input-container">
+    <input type="text" id="command" placeholder="Type your command..." onkeydown="if(event.key==='Enter') sendCommand()" />
+    <button onclick="sendCommand()">Send</button>
+    <button class="mic-button" onclick="startVoiceInput()">🎤</button>
+    <div class="loader" id="loader"></div>
+  </div>
 
-<script>
-  const chatContainer = document.getElementById("chat-container");
+  <script>
+    const chatContainer = document.getElementById("chat-container");
 
-  function toggleTheme() {
-    const body = document.body;
-    body.dataset.theme = body.dataset.theme === 'dark' ? 'light' : 'dark';
-  }
-
-  function speakFromWeb(text) {
-    if (typeof Android !== "undefined" && Android.speakResponse) {
-      Android.speakResponse(text);
+    function toggleTheme() {
+      const body = document.body;
+      body.dataset.theme = body.dataset.theme === 'dark' ? 'light' : 'dark';
     }
-  }
 
-  function startVoiceInput() {
-    if (typeof Android !== "undefined" && Android.startVoice) {
-      Android.startVoice();
-    } else {
-      alert("Voice input not available.");
-    }
-  }
-
-  function addMessage(content, type) {
-    const msg = document.createElement('div');
-    msg.className = `message ${type}`;
-    msg.textContent = content;
-    chatContainer.appendChild(msg);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-    saveChatHistory(content, type);
-  }
-
-  function animateBotResponse(text) {
-    let index = 0;
-    const container = document.createElement('div');
-    container.className = 'message bot';
-    chatContainer.appendChild(container);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-
-    function type() {
-      if (index < text.length) {
-        container.textContent += text.charAt(index++);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-        setTimeout(type, 15);
-      } else {
-        saveChatHistory(text, "bot");
+    function speakFromWeb(text) {
+      if (typeof Android !== "undefined" && Android.speakResponse) {
+        Android.speakResponse(text);
       }
     }
-    type();
-  }
 
-  function saveChatHistory(text, type) {
-    const history = JSON.parse(localStorage.getItem("jd_history") || "[]");
-    history.push({ text, type });
-    localStorage.setItem("jd_history", JSON.stringify(history));
-  }
+    function startVoiceInput() {
+      if (typeof Android !== "undefined" && Android.startVoice) {
+        Android.startVoice();
+      } else {
+        alert("Voice input not available.");
+      }
+    }
 
-  function loadChatHistory() {
-    const history = JSON.parse(localStorage.getItem("jd_history") || "[]");
-    history.forEach(msg => addMessage(msg.text, msg.type));
-  }
+    function addMessage(content, type) {
+      const msg = document.createElement('div');
+      msg.className = `message ${type}`;
+      msg.textContent = content;
+      chatContainer.appendChild(msg);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
 
-  function sendCommand() {
-    const cmdInput = document.getElementById("command");
-    const cmd = cmdInput.value.trim();
-    if (!cmd) return;
+    function animateBotResponse(text) {
+      let index = 0;
+      const container = document.createElement('div');
+      container.className = 'message bot';
+      chatContainer.appendChild(container);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
 
-    const loader = document.getElementById("loader");
-    loader.style.display = "inline-block";
-    cmdInput.value = "";
-    addMessage(cmd, "user");
-
-    fetch("/process", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ command: cmd })
-    })
-    .then(res => res.json())
-    .then(data => {
-      loader.style.display = "none";
-      speakFromWeb(data.response);
-      animateBotResponse(data.response);
-
-      if (data.actions && data.actions.youtube_song) {
-        if (typeof Android !== "undefined" && Android.openYouTube) {
-          Android.openYouTube(data.actions.youtube_song);
+      function type() {
+        if (index < text.length) {
+          container.textContent += text.charAt(index++);
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+          setTimeout(type, 15);
         }
       }
-    })
-    .catch(err => {
-      loader.style.display = "none";
-      animateBotResponse("Error: " + err);
-    });
-  }
+      type();
+    }
 
-  loadChatHistory();
-</script>
+    function sendCommand() {
+      const cmdInput = document.getElementById("command");
+      const cmd = cmdInput.value.trim();
+      if (!cmd) return;
+
+      const loader = document.getElementById("loader");
+      loader.style.display = "inline-block";
+      cmdInput.value = "";
+      addMessage(cmd, "user");
+
+      fetch("/process", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ command: cmd })
+      })
+      .then(res => res.json())
+      .then(data => {
+        loader.style.display = "none";
+        speakFromWeb(data.response);
+        animateBotResponse(data.response);
+
+        if (data.actions && data.actions.youtube_song) {
+          if (typeof Android !== "undefined" && Android.openYouTube) {
+            Android.openYouTube(data.actions.youtube_song);
+          }
+        }
+      })
+      .catch(err => {
+        loader.style.display = "none";
+        animateBotResponse("Error: " + err);
+      });
+    }
+  </script>
 </body>
 </html>
-
-
