@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         webView.settings.javaScriptEnabled = true
         webView.webViewClient = WebViewClient()
         webView.addJavascriptInterface(WebAppInterface(this), "Android")
-        webView.loadUrl("http://192.168.1.43:5000") // Replace with your local Flask IP
+        webView.loadUrl("https://jd-9900.onrender.com/") // Replace with your local Flask IP
     }
 
     private fun requestMicPermission() {
