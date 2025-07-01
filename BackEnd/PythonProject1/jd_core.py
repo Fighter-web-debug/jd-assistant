@@ -1,15 +1,15 @@
+import datetime
 import os
 import re
-import requests
-import datetime
-import pyjokes
-import wikipedia
-from langdetect import detect
-from deep_translator import GoogleTranslator
-from email.message import EmailMessage
 import smtplib
-from jd_state import user_session
+from email.message import EmailMessage
+import pyjokes
+import requests
+import wikipedia
+from deep_translator import GoogleTranslator
 from openai import OpenAI
+
+from jd_state import user_session
 
 client = OpenAI(
     api_key=os.getenv("GROQ_API_KEY"),
@@ -60,6 +60,7 @@ def search_gutenberg(book_name):
 
 def get_ai_response(prompt):
     try:
+        # noinspection PyTypeChecker
         completion = client.chat.completions.create(
             model="llama3-8b-8192",
             messages=[
