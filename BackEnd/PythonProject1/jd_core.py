@@ -16,9 +16,6 @@ client = OpenAI(
     base_url="https://api.groq.com/openai/v1"
 )
 
-EMAIL = "astitvat3@gmail.com"
-PASSWORD = os.getenv("JD_GMAIL_APP_PASSWORD")
-
 def sanitize_email(input_text):
     email = input_text.lower().replace(" at ", "@").replace(" dot ", ".")
     return re.sub(r'\s+', '', email)
@@ -26,18 +23,20 @@ def sanitize_email(input_text):
 def is_valid_email(email):
     return re.match(r"[^@]+@[^@]+\.[^@]+", email)
 
+
+# noinspection PyBroadException
 def translate_to_english(text):
     try:
         return GoogleTranslator(source='auto', target='en').translate(text)
     except:
         return text
 
-def send_email(receiver, subject, message):
+def send_email(sender_email, sender_password, receiver, subject, message):
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
-    server.login(EMAIL, PASSWORD)
+    server.login(sender_email, sender_password)
     email = EmailMessage()
-    email['From'] = EMAIL
+    email['From'] = sender_email
     email['To'] = receiver
     email['Subject'] = subject
     email.set_content(message)
@@ -60,7 +59,6 @@ def search_gutenberg(book_name):
 
 def get_ai_response(prompt):
     try:
-        # noinspection PyTypeChecker
         completion = client.chat.completions.create(
             model="llama3-8b-8192",
             messages=[
@@ -73,6 +71,8 @@ def get_ai_response(prompt):
     except Exception as e:
         return f"AI error: {e}"
 
+
+# noinspection PyBroadException
 def handle_command(command):
     command = command.strip().lower()
     command = translate_to_english(command)
@@ -84,27 +84,29 @@ def handle_command(command):
 
     # ----------------- Email Mode -------------------
     if user_session["mode"] == "email":
-        if not user_session["email"]["to"]:
-            user_session["email"]["to"] = sanitize_email(command)
-            if not is_valid_email(user_session["email"]["to"]):
-                user_session["email"]["to"] = None
+        if not user_session["email_data"]["to"]:
+            user_session["email_data"]["to"] = sanitize_email(command)
+            if not is_valid_email(user_session["email_data"]["to"]):
+                user_session["email_data"]["to"] = None
                 return "Invalid email address. Please say it again."
             return "Got it. What's the subject?"
 
-        elif not user_session["email"]["subject"]:
-            user_session["email"]["subject"] = command
+        elif not user_session["email_data"]["subject"]:
+            user_session["email_data"]["subject"] = command
             return "And what should the email say?"
 
-        elif not user_session["email"]["message"]:
-            user_session["email"]["message"] = command
+        elif not user_session["email_data"]["message"]:
+            user_session["email_data"]["message"] = command
             try:
                 send_email(
-                    user_session["email"]["to"],
-                    user_session["email"]["subject"],
-                    user_session["email"]["message"]
+                    user_session["email"],                  # sender's email from session
+                    user_session["app_password"],           # sender's app password
+                    user_session["email_data"]["to"],
+                    user_session["email_data"]["subject"],
+                    user_session["email_data"]["message"]
                 )
                 user_session["mode"] = None
-                user_session["email"] = {"to": None, "subject": None, "message": None}
+                user_session["email_data"] = {"to": None, "subject": None, "message": None}
                 return "Email has been sent successfully."
             except Exception as e:
                 user_session["mode"] = None
@@ -132,7 +134,6 @@ def handle_command(command):
 
             book_text = book_text[start_idx:]
 
-            # Store book session
             user_session["book"].update({
                 "name": book_name,
                 "text": book_text,
@@ -148,7 +149,6 @@ def handle_command(command):
         else:
             pos = user_session["book"]["position"]
 
-        # Read next chunk (approx 500–1000 chars)
         next_pos = user_session["book"]["text"].find("\n\n", pos + 1000)
         if next_pos == -1:
             next_pos = len(user_session["book"]["text"])
@@ -159,12 +159,15 @@ def handle_command(command):
 
     # ----------------- Command Triggers -------------------
     if "email" in command or "i want to send email" in command:
+        if not user_session["email"] or not user_session["app_password"]:
+            return "You're not logged in with a sender email. Please login first."
         user_session["mode"] = "email"
+        user_session["email_data"] = {"to": None, "subject": None, "message": None}
         return "Sure. Who is the recipient?"
 
     if "read" in command or "i want to read" in command:
         user_session["mode"] = "book"
-        user_session["book"] = {"name": None, "text": "", "position": 0}
+        user_session["book"] = {"name": None, "text": "", "position": 0, "chapter_titles": [], "chapter_indices": [], "resume": False}
         return "Which book would you like to read?"
 
     if "play" in command:

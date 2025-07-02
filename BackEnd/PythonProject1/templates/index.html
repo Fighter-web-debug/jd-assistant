@@ -146,7 +146,7 @@
     <div class="chat-container" id="chat-container"></div>
 
     <div class="input-container">
-        <input type="text" id="command" placeholder="Type your command..." onkeydown="if(event.key==='Enter') sendCommand()" />
+        <label for="command"></label><input type="text" id="command" placeholder="Type your command..." onkeydown="if(event.key==='Enter') sendCommand()" />
         <button onclick="sendCommand()">Send</button>
         <button class="mic-button" onclick="startVoiceInput()">🎤</button>
         <div class="loader" id="loader"></div>
@@ -228,6 +228,18 @@
                 animateBotResponse("Error: " + err);
             });
         }
+
+         function notifyLoginSuccess() {
+        if (typeof AndroidJD !== "undefined" && AndroidJD.onLoginSuccess) {
+            AndroidJD.onLoginSuccess();
+        }
+    }
+
+    function notifyLogout() {
+        if (typeof AndroidJD !== "undefined" && AndroidJD.onLogout) {
+            AndroidJD.onLogout();
+        }
+    }
     </script>
 </body>
 </html>
