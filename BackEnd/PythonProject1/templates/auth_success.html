@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+    <title>Login Success</title>
+    <script>
+        if (typeof AndroidJD !== "undefined" && AndroidJD.onLoginSuccess) {
+            AndroidJD.onLoginSuccess(); // Notify Android app
+        }
+        window.location.href = "/"; // Redirect to main page after notifying
+    </script>
+</head>
+<body>
+  Redirecting...
+</body>
+</html>

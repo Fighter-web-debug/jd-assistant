@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+<!DOCTYPE html>                                                                                                   <!DOCTYPE html>
+<!--suppress ALL -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -39,9 +40,9 @@
       font-size: 28px;
     }
 
+    input[type="text"],
     input[type="email"],
-    input[type="password"],
-    input[type="text"] {
+    input[type="password"] {
       width: 100%;
       padding: 12px;
       border: none;
@@ -84,35 +85,52 @@
     .hidden {
       display: none;
     }
+
+    .error-message {
+      color: red;
+      text-align: center;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
 
-<div class="container" id="loginForm">
+<!-- Login Form -->
+<div class="container" id="loginForm" style="{{ 'display: none;' if mode == 'register' else '' }}">
   <h2>Login to JD</h2>
-  <form onsubmit="return handleLogin(event)">
+  {% if message and mode == 'login' %}
+    <div class="error-message">{{ message }}</div>
+  {% endif %}
+  <form method="POST" action="/login">
       <label>
-          <input type="email" id="loginEmail" placeholder="Your Email" required />
+          <input type="text" name="username" placeholder="Your Username" required />
       </label>
       <label>
-          <input type="password" id="loginPassword" placeholder="Your Password" required />
+          <input type="password" name="password" placeholder="Your Password" required />
       </label>
       <button type="submit">Login</button>
   </form>
   <div class="toggle-link" onclick="toggleForms()">New user? Register now</div>
 </div>
 
-<div class="container hidden" id="registerForm">
+<!-- Registration Form -->
+<div class="container hidden" id="registerForm" style="{{ 'display: none;' if mode == 'login' else '' }}">
   <h2>Register with JD</h2>
-  <form onsubmit="return handleRegister(event)">
+  {% if message and mode == 'register' %}
+    <div class="error-message">{{ message }}</div>
+  {% endif %}
+  <form method="POST" action="/register">
       <label>
-          <input type="text" id="registerName" placeholder="Your Name" required />
+          <input type="text" name="username" placeholder="Choose Username" required />
       </label>
       <label>
-          <input type="email" id="registerEmail" placeholder="Your Email" required />
+          <input type="email" name="email" placeholder="Your Email" required />
       </label>
       <label>
-          <input type="password" id="registerPassword" placeholder="Create Password" required />
+          <input type="password" name="password" placeholder="Create Password" required />
+      </label>
+      <label>
+          <input type="password" name="app_password" placeholder="Email App Password" required />
       </label>
       <button type="submit">Register</button>
   </form>
@@ -126,58 +144,8 @@
     login.classList.toggle("hidden");
     register.classList.toggle("hidden");
   }
-
-  function notifyLoginSuccess() {
-    if (typeof AndroidJD !== "undefined" && AndroidJD.onLoginSuccess) {
-      AndroidJD.onLoginSuccess();
-    }
-  }
-
-  function handleLogin(event) {
-    event.preventDefault();
-    const email = document.getElementById("loginEmail").value.trim();
-    const password = document.getElementById("loginPassword").value.trim();
-
-    fetch("/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        notifyLoginSuccess(); // ✅ Inform Android
-        window.location.href = "/";
-      } else {
-        alert(data.message || "Invalid credentials");
-      }
-    })
-    .catch(() => alert("Login error"));
-  }
-
-  function handleRegister(event) {
-    event.preventDefault();
-    const name = document.getElementById("registerName").value.trim();
-    const email = document.getElementById("registerEmail").value.trim();
-    const password = document.getElementById("registerPassword").value.trim();
-
-    fetch("/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        notifyLoginSuccess(); // ✅ Inform Android
-        window.location.href = "/";
-      } else {
-        alert(data.message || "Registration failed");
-      }
-    })
-    .catch(() => alert("Registration error"));
-  }
 </script>
 
 </body>
 </html>
+

@@ -41,7 +41,7 @@ def login():
             user_session["email"] = user[3]
             user_session["app_password"] = user[4]
 
-            return redirect("/")
+            return render_template("auth_success.html")
         else:
             return render_template("auth.html", message="Invalid credentials", mode="login")
 
