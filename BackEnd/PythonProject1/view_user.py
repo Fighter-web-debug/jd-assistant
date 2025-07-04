@@ -1,13 +1,15 @@
 import sqlite3
 
-conn = sqlite3.connect("users.db")
+conn = sqlite3.connect('users.db')
 c = conn.cursor()
 
-c.execute("SELECT id, name, email FROM users")
-rows = c.fetchall()
+# Corrected query
+c.execute("SELECT id, username, email FROM users")
 
-print("Registered Users:")
-for row in rows:
-    print(f"ID: {row[0]} | Name: {row[1]} | Email: {row[2]}")
+users = c.fetchall()
+
+for user in users:
+    print(user)
 
 conn.close()
+
