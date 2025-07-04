@@ -6,12 +6,12 @@ app = Flask(__name__)
 app.secret_key = "your_secret_key_here"
 
 # Register blueprint
-app.register_blueprint(auth)
+app.register_blueprint(auth, url_prefix="/auth")
 
 @app.route("/")
 def index():
     if not session.get("logged_in"):
-        return redirect("/login")  # Redirect to login page if not logged in
+        return redirect("/auth/login")  # Corrected path
     return render_template("index.html")
 
 @app.route("/process", methods=["POST"])
@@ -32,7 +32,7 @@ def process():
 @app.route("/logout")
 def logout():
     session.clear()
-    return redirect("/login")
+    return redirect("/auth/login")
 
 if __name__ == "__main__":
     app.run(debug=True)
