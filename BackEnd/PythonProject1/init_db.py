@@ -1,18 +1,21 @@
 import sqlite3
 
-conn = sqlite3.connect('users.db')
+conn = sqlite3.connect("users.db")
 c = conn.cursor()
 
-# Updated schema: includes 'name' field
-c.execute('''CREATE TABLE IF NOT EXISTS users (
+# Correct schema with `username` included
+c.execute('''
+CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    email TEXT NOT NULL UNIQUE,
-    password TEXT NOT NULL
-)''')
+    username TEXT UNIQUE,
+    password TEXT,
+    email TEXT,
+    app_password TEXT
+)
+''')
 
 conn.commit()
 conn.close()
+print("✅ users.db recreated with correct schema.")
 
-print("Database and users table created.")
 
