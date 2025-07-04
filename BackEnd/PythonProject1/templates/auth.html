@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JD Assistant - Login/Register</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 40px 30px;
+      width: 350px;
+      color: #fff;
+      position: relative;
+      transition: 0.4s ease;
+    }
+
+    .container h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 28px;
+    }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      margin: 10px 0 20px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-size: 16px;
+    }
+
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background-color: #03dac6;
+      font-size: 16px;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #00bfa5;
+    }
+
+    .toggle-link {
+      margin-top: 20px;
+      text-align: center;
+      cursor: pointer;
+      color: #03dac6;
+      text-decoration: underline;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="loginForm">
+  <h2>Login to JD</h2>
+  <form onsubmit="return handleLogin(event)">
+      <label>
+          <input type="email" id="loginEmail" placeholder="Your Email" required />
+      </label>
+      <label>
+          <input type="password" id="loginPassword" placeholder="Your Password" required />
+      </label>
+      <button type="submit">Login</button>
+  </form>
+  <div class="toggle-link" onclick="toggleForms()">New user? Register now</div>
+</div>
+
+<div class="container hidden" id="registerForm">
+  <h2>Register with JD</h2>
+  <form onsubmit="return handleRegister(event)">
+      <label>
+          <input type="text" id="registerName" placeholder="Your Name" required />
+      </label>
+      <label>
+          <input type="email" id="registerEmail" placeholder="Your Email" required />
+      </label>
+      <label>
+          <input type="password" id="registerPassword" placeholder="Create Password" required />
+      </label>
+      <button type="submit">Register</button>
+  </form>
+  <div class="toggle-link" onclick="toggleForms()">Already have an account? Login</div>
+</div>
+
+<script>
+  function toggleForms() {
+    const login = document.getElementById("loginForm");
+    const register = document.getElementById("registerForm");
+    login.classList.toggle("hidden");
+    register.classList.toggle("hidden");
+  }
+
+  function notifyLoginSuccess() {
+    if (typeof AndroidJD !== "undefined" && AndroidJD.onLoginSuccess) {
+      AndroidJD.onLoginSuccess();
+    }
+  }
+
+  function handleLogin(event) {
+    event.preventDefault();
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value.trim();
+
+    fetch("/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        notifyLoginSuccess(); // ✅ Inform Android
+        window.location.href = "/";
+      } else {
+        alert(data.message || "Invalid credentials");
+      }
+    })
+    .catch(() => alert("Login error"));
+  }
+
+  function handleRegister(event) {
+    event.preventDefault();
+    const name = document.getElementById("registerName").value.trim();
+    const email = document.getElementById("registerEmail").value.trim();
+    const password = document.getElementById("registerPassword").value.trim();
+
+    fetch("/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        notifyLoginSuccess(); // ✅ Inform Android
+        window.location.href = "/";
+      } else {
+        alert(data.message || "Registration failed");
+      }
+    })
+    .catch(() => alert("Registration error"));
+  }
+</script>
+
+</body>
+</html>
