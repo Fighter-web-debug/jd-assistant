@@ -5,7 +5,7 @@ from jd_state import user_session
 
 auth = Blueprint("auth", __name__)
 
-# Ensure database and table exist
+# Ensure database and table
 conn = sqlite3.connect("users.db")
 c = conn.cursor()
 c.execute('''CREATE TABLE IF NOT EXISTS users (
@@ -41,12 +41,11 @@ def login():
             user_session["email"] = user[3]
             user_session["app_password"] = user[4]
 
-            return redirect("/")  # Redirect to main app after login
+            return redirect("/")  # ✅ Redirect to homepage after login
         else:
             return render_template("auth.html", message="Invalid credentials", mode="login")
 
     return render_template("auth.html", mode="login")
-
 
 @auth.route("/register", methods=["GET", "POST"])
 def register():
@@ -70,9 +69,3 @@ def register():
             return render_template("auth.html", message="Username already exists", mode="register")
 
     return render_template("auth.html", mode="register")
-
-
-@auth.route("/logout")
-def logout():
-    session.clear()
-    return redirect("/auth")

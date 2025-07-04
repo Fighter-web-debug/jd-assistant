@@ -1,22 +1,18 @@
 from flask import Flask, render_template, request, jsonify, session, redirect
 from jd_core import handle_command
-from auth import auth  # Your auth blueprint
+from auth import auth  # Blueprint for login/register
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key_here"
 
-# Register auth blueprint
+# Register blueprint
 app.register_blueprint(auth)
 
 @app.route("/")
 def index():
     if not session.get("logged_in"):
-        return redirect("/auth")
+        return redirect("/login")  # Redirect to login page if not logged in
     return render_template("index.html")
-
-@app.route("/auth")
-def auth_page():
-    return render_template("auth.html", mode="login")
 
 @app.route("/process", methods=["POST"])
 def process():
@@ -33,8 +29,13 @@ def process():
 
     return jsonify({"response": response, "actions": actions})
 
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
+
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0")
+    app.run(debug=True)
 
 
 
