@@ -1,5 +1,4 @@
-<!DOCTYPE html>                                                                                                   <!DOCTYPE html>
-<!--suppress ALL -->
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -96,43 +95,43 @@
 <body>
 
 <!-- Login Form -->
-<div class="container" id="loginForm" style="{{ 'display: none;' if mode == 'register' else '' }}">
+<div id="loginForm" class="container {% if mode == 'register' %}hidden{% endif %}">
   <h2>Login to JD</h2>
   {% if message and mode == 'login' %}
     <div class="error-message">{{ message }}</div>
   {% endif %}
   <form method="POST" action="/login">
-      <label>
-          <input type="text" name="username" placeholder="Your Username" required />
-      </label>
-      <label>
-          <input type="password" name="password" placeholder="Your Password" required />
-      </label>
-      <button type="submit">Login</button>
+    <label>
+      <input type="text" name="username" placeholder="Your Username" required />
+    </label>
+    <label>
+      <input type="password" name="password" placeholder="Your Password" required />
+    </label>
+    <button type="submit">Login</button>
   </form>
   <div class="toggle-link" onclick="toggleForms()">New user? Register now</div>
 </div>
 
-<!-- Registration Form -->
-<div class="container hidden" id="registerForm" style="{{ 'display: none;' if mode == 'login' else '' }}">
+<!-- Register Form -->
+<div class="container {% if mode == 'login' %}hidden{% endif %}" id="registerForm">
   <h2>Register with JD</h2>
   {% if message and mode == 'register' %}
     <div class="error-message">{{ message }}</div>
   {% endif %}
   <form method="POST" action="/register">
-      <label>
-          <input type="text" name="username" placeholder="Choose Username" required />
-      </label>
-      <label>
-          <input type="email" name="email" placeholder="Your Email" required />
-      </label>
-      <label>
-          <input type="password" name="password" placeholder="Create Password" required />
-      </label>
-      <label>
-          <input type="password" name="app_password" placeholder="Email App Password" required />
-      </label>
-      <button type="submit">Register</button>
+    <label>
+      <input type="text" name="username" placeholder="Choose Username" required />
+    </label>
+    <label>
+      <input type="email" name="email" placeholder="Your Email" required />
+    </label>
+    <label>
+      <input type="password" name="password" placeholder="Create Password" required />
+    </label>
+    <label>
+      <input type="password" name="app_password" placeholder="Email App Password" required />
+    </label>
+    <button type="submit">Register</button>
   </form>
   <div class="toggle-link" onclick="toggleForms()">Already have an account? Login</div>
 </div>
@@ -148,4 +147,3 @@
 
 </body>
 </html>
-
