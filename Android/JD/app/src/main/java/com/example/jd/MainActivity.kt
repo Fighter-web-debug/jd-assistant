@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         if (isLoggedIn) {
             webView.loadUrl("https://jd-9900.onrender.com/")
         } else {
-            webView.loadUrl("https://jd-9900.onrender.com/login")
+            webView.loadUrl("https://jd-9900.onrender.com/auth/login")
         }
 
         ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 1)
@@ -110,7 +110,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             editor.apply()
 
             runOnUiThread {
-                webView.loadUrl("https://jd-9900.onrender.com/login")
+                webView.loadUrl("https://jd-9900.onrender.com/auth/login")
             }
         }
     }
