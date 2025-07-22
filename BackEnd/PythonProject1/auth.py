@@ -64,7 +64,7 @@ def register():
                       (username, hashed_pw, email, app_password))
             conn.commit()
             conn.close()
-            return redirect("/login")
+            return redirect("/auth/login")
         except sqlite3.IntegrityError:
             return render_template("auth.html", message="Username already exists", mode="register")
 

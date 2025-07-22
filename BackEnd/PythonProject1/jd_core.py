@@ -8,7 +8,6 @@ import requests
 import wikipedia
 from deep_translator import GoogleTranslator
 from openai import OpenAI
-
 from jd_state import user_session
 
 client = OpenAI(
@@ -62,7 +61,7 @@ def get_ai_response(prompt):
         completion = client.chat.completions.create(
             model="llama3-8b-8192",
             messages=[
-                {"role": "system", "content": "You are JD, a helpful and funny AI assistant."},
+                {"role": "system", "content": "You are JD, a helpful and funny AI assistant created by Astitva Tripartite."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.7
