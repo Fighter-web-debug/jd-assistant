@@ -64,7 +64,7 @@ def register():
                       (username, hashed_pw, email, app_password))
             conn.commit()
             conn.close()
-            
+
             session["logged_in"] = True
             session['username'] = username
             session['email'] = email

@@ -36,6 +36,14 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         tts = TextToSpeech(this, this)
 
         webView.settings.javaScriptEnabled = true
+        webView.settings.domStorageEnabled = true  // Enable localStorage/sessionStorage
+        webView.webViewClient = object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+                view?.loadUrl(url ?: "")
+                return true
+            }
+        }
+
         webView.webViewClient = WebViewClient()
         webView.addJavascriptInterface(WebAppInterface(this), "AndroidJD")
 

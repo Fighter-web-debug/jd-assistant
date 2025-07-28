@@ -228,8 +228,10 @@
                 animateBotResponse("Error: " + err);
             });
         }
+    </script>
 
-         function notifyLoginSuccess() {
+    <script>
+    function notifyLoginSuccess() {
         if (typeof AndroidJD !== "undefined" && AndroidJD.onLoginSuccess) {
             AndroidJD.onLoginSuccess();
         }
@@ -240,7 +242,12 @@
             AndroidJD.onLogout();
         }
     }
-    </script>
+
+    window.onload = function() {
+        notifyLoginSuccess();
+    };
+</script>
+
 </body>
 </html>
 
