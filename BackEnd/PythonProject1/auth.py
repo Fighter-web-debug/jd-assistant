@@ -6,7 +6,7 @@ from jd_state import user_session
 auth = Blueprint("auth", __name__)
 
 # Ensure database and table
-conn = sqlite3.connect("users.db")
+conn = sqlite3.connect("jd_users.db")
 c = conn.cursor()
 c.execute('''CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -64,7 +64,11 @@ def register():
                       (username, hashed_pw, email, app_password))
             conn.commit()
             conn.close()
-            return redirect("/auth/login")
+            
+            session["logged_in"] = True
+            session['username'] = username
+            session['email'] = email
+            return redirect("/")
         except sqlite3.IntegrityError:
             return render_template("auth.html", message="Username already exists", mode="register")
 

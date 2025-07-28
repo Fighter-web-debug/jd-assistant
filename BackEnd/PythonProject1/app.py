@@ -1,6 +1,7 @@
+import sqlite3
+
 from flask import Flask, render_template, request, jsonify, session, redirect
 from jd_core import handle_command
-from view_user import view_user
 from auth import auth  # Blueprint for login/register
 
 app = Flask(__name__)
@@ -8,7 +9,11 @@ app.secret_key = "your_secret_key_here"
 
 # Register blueprint
 app.register_blueprint(auth, url_prefix="/auth")
-app.register_blueprint(view_user)
+
+def get_db_connection():
+    conn = sqlite3.connect('jd_users.db')
+    conn.row_factory = sqlite3.Row
+    return conn
 
 @app.route("/")
 def index():
