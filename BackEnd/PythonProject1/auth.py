@@ -24,7 +24,7 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
 
-        conn = sqlite3.connect("users.db")
+        conn = sqlite3.connect("jd_users.db")
         c = conn.cursor()
         c.execute("SELECT * FROM users WHERE username = ?", (username,))
         user = c.fetchone()
@@ -58,7 +58,7 @@ def register():
         hashed_pw = generate_password_hash(password)
 
         try:
-            conn = sqlite3.connect("users.db")
+            conn = sqlite3.connect("jd_users.db")
             c = conn.cursor()
             c.execute("INSERT INTO users (username, password, email, app_password) VALUES (?, ?, ?, ?)",
                       (username, hashed_pw, email, app_password))
