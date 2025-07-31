@@ -1,22 +1,35 @@
 from flask import Blueprint, request, render_template, redirect, session
-import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
-from jd_state import user_session
+import psycopg2
+import os
 
 auth = Blueprint("auth", __name__)
 
-# Ensure database and table
-conn = sqlite3.connect("jd_users.db")
-c = conn.cursor()
-c.execute('''CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE,
-    password TEXT,
-    email TEXT,
-    app_password TEXT
-)''')
-conn.commit()
-conn.close()
+# ✅ Use DATABASE_URL from Render environment (set automatically)
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+def get_db_connection():
+    return psycopg2.connect(DATABASE_URL, sslmode="require")
+
+# ✅ Ensure the users table exists
+def init_db():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            email TEXT NOT NULL,
+            app_password TEXT
+        );
+    """)
+    conn.commit()
+    cur.close()
+    conn.close()
+
+init_db()
+
 
 @auth.route("/login", methods=["GET", "POST"])
 def login():
@@ -24,10 +37,11 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
 
-        conn = sqlite3.connect("jd_users.db")
-        c = conn.cursor()
-        c.execute("SELECT * FROM users WHERE username = ?", (username,))
-        user = c.fetchone()
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM users WHERE username = %s", (username,))
+        user = cur.fetchone()
+        cur.close()
         conn.close()
 
         if user and check_password_hash(user[2], password):
@@ -35,17 +49,12 @@ def login():
             session["username"] = user[1]
             session["email"] = user[3]
             session["app_password"] = user[4]
-
-            user_session["logged_in"] = True
-            user_session["username"] = user[1]
-            user_session["email"] = user[3]
-            user_session["app_password"] = user[4]
-
-            return redirect("/")  # ✅ Redirect to homepage after login
+            return redirect("/")
         else:
             return render_template("auth.html", message="Invalid credentials", mode="login")
 
     return render_template("auth.html", mode="login")
+
 
 @auth.route("/register", methods=["GET", "POST"])
 def register():
@@ -58,18 +67,24 @@ def register():
         hashed_pw = generate_password_hash(password)
 
         try:
-            conn = sqlite3.connect("jd_users.db")
-            c = conn.cursor()
-            c.execute("INSERT INTO users (username, password, email, app_password) VALUES (?, ?, ?, ?)",
-                      (username, hashed_pw, email, app_password))
+            conn = get_db_connection()
+            cur = conn.cursor()
+            cur.execute("""
+                INSERT INTO users (username, password, email, app_password)
+                VALUES (%s, %s, %s, %s)
+            """, (username, hashed_pw, email, app_password))
             conn.commit()
+            cur.close()
             conn.close()
 
             session["logged_in"] = True
-            session['username'] = username
-            session['email'] = email
+            session["username"] = username
+            session["email"] = email
+            session["app_password"] = app_password
             return redirect("/")
-        except sqlite3.IntegrityError:
+        except psycopg2.errors.UniqueViolation:
             return render_template("auth.html", message="Username already exists", mode="register")
+        except Exception as e:
+            return render_template("auth.html", message="Error: " + str(e), mode="register")
 
     return render_template("auth.html", mode="register")

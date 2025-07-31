@@ -1,25 +1,27 @@
-import sqlite3
+import os
+import psycopg2
 import urllib.parse
-
 from flask import Flask, render_template, request, jsonify, session, redirect
 from jd_core import handle_command
-from auth import auth  # Blueprint for login/register
+from auth import auth
 
 app = Flask(__name__)
-app.secret_key = "your_secret_key_here"
+app.secret_key = os.getenv("SECRET_KEY", "your_secret_key_here")
 
 # Register blueprint
 app.register_blueprint(auth, url_prefix="/auth")
 
+# PostgreSQL connection
+DATABASE_URL = os.getenv("DATABASE_URL")
+
 def get_db_connection():
-    conn = sqlite3.connect('jd_users.db')
-    conn.row_factory = sqlite3.Row
+    conn = psycopg2.connect(DATABASE_URL, sslmode="require")
     return conn
 
 @app.route("/")
 def index():
     if not session.get("logged_in"):
-        return redirect("/auth/login")  # Corrected path
+        return redirect("/auth/login")
     return render_template("index.html")
 
 @app.route("/process", methods=["POST"])
@@ -46,6 +48,7 @@ def logout():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
 
