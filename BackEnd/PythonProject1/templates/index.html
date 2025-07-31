@@ -217,11 +217,14 @@
                 speakFromWeb(data.response);
                 animateBotResponse(data.response);
 
-                if (data.actions && data.actions.youtube_song) {
-                    if (typeof Android !== "undefined" && Android.openYouTube) {
-                        Android.openYouTube(data.actions.youtube_song);
-                    }
-                }
+                if (data.actions && data.actions.youtube_url) {
+    if (typeof Android !== "undefined" && Android.openYouTube) {
+        Android.openYouTube(data.actions.youtube_url);
+    } else {
+        window.open(data.actions.youtube_url, "_blank");
+    }
+}
+
             })
             .catch(err => {
                 loader.style.display = "none";

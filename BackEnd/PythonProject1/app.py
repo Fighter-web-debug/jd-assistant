@@ -1,4 +1,5 @@
 import sqlite3
+import urllib.parse
 
 from flask import Flask, render_template, request, jsonify, session, redirect
 from jd_core import handle_command
@@ -32,7 +33,9 @@ def process():
 
     actions = {}
     if "youtube" in command.lower() or "play" in command.lower():
-        actions["youtube_song"] = command.replace("play", "").replace("on youtube", "").strip()
+        song = command.lower().replace("play", "").replace("on youtube", "").strip()
+        youtube_url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(song)}"
+        actions["youtube_url"] = youtube_url
 
     return jsonify({"response": response, "actions": actions})
 
