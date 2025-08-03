@@ -141,6 +141,32 @@
     </style>
 </head>
 <body data-theme="dark">
+
+    <div style="position: fixed; top: 10px; left: 10px;">
+        <a href="/auth/update_app_password"
+           style="background: var(--accent); color: black; padding: 8px 12px;
+                  border-radius: 8px; font-weight: bold; text-decoration: none;">
+           ⚙ Settings
+        </a>
+    </div>
+
+    {% if show_update_password %}
+<div style="position: fixed; top: 10px; left: 10px;">
+    <a href="/auth/update_app_password"
+       style="background: var(--accent); color: black; padding: 8px 12px;
+              border-radius: 8px; font-weight: bold; text-decoration: none;">
+       ⚙ Add Gmail App Password
+    </a>
+</div>
+{% else %}
+<div style="position: fixed; top: 10px; left: 10px;">
+    <a href="/auth/update_app_password"
+       style="color: var(--accent); font-weight: bold; text-decoration: underline;">
+       ✏️ Update Gmail App Password
+    </a>
+</div>
+{% endif %}
+
     <div class="theme-toggle" onclick="toggleTheme()">Toggle Theme</div>
     <h1>JD Assistant</h1>
     <div class="chat-container" id="chat-container"></div>
@@ -217,11 +243,9 @@
                 speakFromWeb(data.response);
                 animateBotResponse(data.response);
 
-                if (data.actions && data.actions.youtube_url) {
+     if (data.actions && data.actions.youtube_song) {
     if (typeof Android !== "undefined" && Android.openYouTube) {
-        Android.openYouTube(data.actions.youtube_url);
-    } else {
-        window.open(data.actions.youtube_url, "_blank");
+        Android.openYouTube(data.actions.youtube_song);
     }
 }
 

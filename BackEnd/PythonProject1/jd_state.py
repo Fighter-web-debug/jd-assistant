@@ -13,8 +13,8 @@ user_session = {
     },
     "logged_in": False,
     "username": None,
-    "email": None,           # logged-in user's email (sender)
-    "app_password": None     # logged-in user's app password (for SMTP)
+    "email": None,
+    "app_password": None
 }
 
 

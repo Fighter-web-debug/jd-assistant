@@ -1,14 +1,11 @@
 import psycopg2
 import os
 
-# Get Render's PostgreSQL connection string
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Connect to PostgresSQL
 conn = psycopg2.connect(DATABASE_URL, sslmode="require")
 cur = conn.cursor()
 
-# Create users table in PostgreSQL
 cur.execute("""
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
