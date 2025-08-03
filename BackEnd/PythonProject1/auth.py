@@ -11,6 +11,29 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, sslmode="require")
 
+@auth.route("/update_app_password", methods=["GET", "POST"])
+def update_app_password():
+    if not session.get("logged_in"):
+        return redirect("/auth/login")
+
+    if request.method == "POST":
+        new_app_password = request.form["app_password"]
+
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            "UPDATE users SET app_password = %s WHERE username = %s",
+            (new_app_password, session["username"])
+        )
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        session["app_password"] = new_app_password
+        return render_template("update_app_password.html", message="Gmail App Password updated successfully.")
+
+    return render_template("update_app_password.html")
+
 # ✅ Ensure the users table exists
 def init_db():
     conn = get_db_connection()
