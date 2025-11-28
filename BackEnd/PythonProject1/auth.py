@@ -51,9 +51,6 @@ def init_db():
     cur.close()
     conn.close()
 
-init_db()
-
-
 @auth.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
